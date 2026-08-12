@@ -1,0 +1,52 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backtest (dados sintéticos)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Backtest (dados reais)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.py",
+      "args": ["--csv-win", "dados/win_1min.csv", "--csv-wdo", "dados/wdo_1min.csv"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Executor WIN — DRY-RUN (ensaio)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/executor_mt5.py",
+      "args": ["--ativo", "WIN", "--dry-run"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Executor WDO — DRY-RUN (ensaio)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/executor_mt5.py",
+      "args": ["--ativo", "WDO", "--dry-run"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Executor WIN — conta DEMO",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/executor_mt5.py",
+      "args": ["--ativo", "WIN"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Executor WDO — conta DEMO",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/executor_mt5.py",
+      "args": ["--ativo", "WDO"],
+      "console": "integratedTerminal"
+    }
+  ]
+}

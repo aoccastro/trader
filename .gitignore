@@ -1,0 +1,14 @@
+# Dados de mercado (grandes, licença da corretora, e o holdout fica só local)
+dados/
+
+# Saídas geradas pelo backtest
+resultados/
+resultados_reais/
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/

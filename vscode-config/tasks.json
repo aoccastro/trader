@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Instalar dependências",
+      "type": "shell",
+      "command": "pip install -r requirements.txt",
+      "problemMatcher": []
+    },
+    {
+      "label": "Ver log do executor (ao vivo)",
+      "type": "shell",
+      "command": "Get-Content executor_mt5.log -Wait -Tail 30",
+      "options": { "shell": { "executable": "powershell.exe", "args": ["-Command"] } },
+      "problemMatcher": []
+    },
+    {
+      "label": "Abrir relatório do backtest",
+      "type": "shell",
+      "command": "start resultados\\relatorio.md",
+      "problemMatcher": []
+    }
+  ]
+}

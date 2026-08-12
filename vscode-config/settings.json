@@ -1,0 +1,10 @@
+{
+  "editor.fontSize": 18,
+  "terminal.integrated.fontSize": 16,
+  "workbench.colorTheme": "Default Dark Modern",
+  "editor.minimap.enabled": false,
+  "accessibility.signals.terminalBell": { "sound": "on" },
+  "audioCues.terminalBell": "on",
+  "python.terminal.activateEnvironment": true,
+  "files.associations": { "*.log": "log" }
+}
