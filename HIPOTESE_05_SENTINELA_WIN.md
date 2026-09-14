@@ -1,7 +1,6 @@
 # Hipótese 05 — Sentinela WIN: rompimento do range da primeira hora na direção da tendência do diário
 
-**Status: ETAPA 0.1 — PRÉ-REGISTRO (2026-09-14), sem tocar em dados. Aguardando ok do dono para a Etapa 0.2
-(implementar como estratégia do motor e rodar). Nenhum código de estratégia escrito.**
+**Status: MORTA no in-sample (rodada única em 2026-09-14, Etapa 0.2). O Sentinela NÃO é construído; este registro é o resultado. Bloco virgem (>= 12/08) e holdout (jul–ago) continuam intocados — não há o que confirmar.**
 
 Fonte: `TradingAgents/PROMPT_SENTINELA_WIN.md` versão 2, "PROMPT 1 — Fase 0, laboratório". A decisão sobre
 os dados (seção 6) foi tomada depois do prompt e está registrada aqui, antes de codar. Formato das Hipóteses
@@ -130,3 +129,53 @@ tendência, para atribuição. `main_sentinela.py` herda a trava de holdout do `
 in-sample é escrito aqui e no README. Se reprovar, o Sentinela não é construído e o registro é o resultado.
 
 Material educacional; não é recomendação de investimento.
+
+## 9. Resultado da Etapa 0.2 — rodada única no in-sample (2026-09-14)
+
+Código: `robo/estrategia_sentinela.py` (decisão em M5 agregado do M1, preenchimento em M1 pelas premissas do
+motor v3), `main_sentinela.py` (travas de holdout e de bloco virgem, ambas testadas), `tests_sentinela.py`
+(18 testes, barras sintéticas), `exportar_d1.py` -> `dados/win_d1.csv` (D1 do WIN$ no MT5, 675 pregões desde
+2024-01-02; 475 anteriores ao in-sample: **aquecimento da SMA20 completo, custo zero em pregões**). Saída
+completa em `resultados/h05_sentinela_2026-09-14.md`. Pregões descartados: 2026-01-22 e 2026-01-26 (buracos de
+minuto), 2026-02-18 (321 barras). Custos: R$ 1,00/contrato/lado + 1 tick de slippage; capital R$ 10.000 -> 1
+contrato em todas as operações (26 parciais em 1R impossíveis com 1 contrato, viraram só breakeven).
+
+| Célula | trades | fator | expect. R$/op | DD R$ | maior seq. perdas | leitura |
+|---|---|---|---|---|---|---|
+| H05 com filtro SMA20 — período todo (148 pregões) | 122 | 0,95 | −1,59 | −792 | 10 | ok |
+| H05 com filtro — 1ª metade (até 2026-03-13) | 59 | 0,94 | −1,97 | −589 | 8 | ilegível (< 60) |
+| H05 com filtro — 2ª metade | 62 | 0,87 | −3,69 | −845 | 10 | ok |
+| Linha de base sem filtro — todo | 246 | 0,89 | −3,52 | −1.886 | 13 | ok |
+| Sem filtro — 1ª metade | 127 | 1,10 | +2,69 | −577 | 12 | ok |
+| Sem filtro — 2ª metade | 117 | 0,72 | −8,93 | −1.738 | 13 | ok |
+| ORB v3 (controle de agosto) — todo | 78 | 0,89 | −3,54 | −810 | 9 | ok |
+| ORB v3 — 1ª / 2ª metade | 52 / 26 | 0,89 / 0,89 | −3,54 / −3,54 | −810 / −216 | 9 / 4 | ilegíveis |
+
+Contribuição por regra de saída (H05 com filtro, período todo; n, média, soma em R$): stop inicial 64,
+−53,0, −3.392; alvo 2R 33, +98,0, +3.234; parcial 1R + breakeven 6, −3,0, −18; trava 1R em 2R 0; trailing
+por pivô 3, +11,3, +34; reversão VWAP 2, −37,5, −75; stop de tempo 13, −1,3, −17; zeragem 1, +40, +40.
+"Se esta regra não existisse" (só as duas nunca testadas no motor): sem reversão VWAP -> 122 trades, fator
+0,94, expect. −1,84 (piora marginal: a regra salvou 2 saídas); sem stop de tempo -> 118 trades, fator 0,91,
+expect. −2,76, DD −954, sequência 16 (o stop de tempo é a regra que mais ajuda, e ainda assim não basta).
+
+**Veredicto (critério de morte pré-declarado): MORTA.** Fator de lucro abaixo de 1,0 nas duas metades (0,94 e
+0,87) e expectância negativa no período todo (−1,59 R$/op). A predição P2 foi falsificada nas duas partes:
+com o filtro, o fator não passou de 1,3 em nenhuma fatia; sem o filtro, o resultado repetiu agosto (0,89, igual
+ao controle ORB v3).
+
+Leitura de atribuição (não calibração): o filtro de tendência vetou 309 dos 431 gatilhos (72%), reduziu o
+drawdown pela metade e subiu o fator de 0,89 para 0,95 — corta perda, não cria expectância. A única célula
+positiva do quadro é a linha de base sem filtro na 1ª metade (fator 1,10), que vira 0,72 na 2ª: instabilidade
+típica de ruído, não de regra. O resultado é dominado por stop inicial (64) contra alvo (33): 34% de acerto
+com payoff ~1,85 fica abaixo do ponto de equilíbrio (35%) — exatamente a aritmética que já reprovou a ORB.
+
+Sem melhora inesperada em relação a agosto: o controle ORB v3 saiu perdedor no mesmo período (fator 0,89) e a
+H05 sem filtro deu o mesmo 0,89. Nota sobre o controle: com 1 contrato a ORB só tem dois resultados possíveis
+(−52 e +74), e as três fatias tiveram a mesma proporção 10:16 de alvos por stops — por isso fator e expectância
+idênticos nas três; o drawdown difere. Conferido nos trades; não é defeito.
+
+Consequências: (1) o Sentinela WIN não será construído no app; o PROMPT 2 não é executado. (2) Nenhum
+parâmetro foi ou será ajustado; qualquer variação (outro stop, outra janela, filtro de tendência mais rápido)
+é uma H06 com racional novo e dados novos. (3) Bloco virgem e holdout permanecem intocados. (4) Registro
+mantido no README.
+

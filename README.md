@@ -80,6 +80,10 @@ Aprovou? Próxima etapa é **simulador/replay** por pelo menos 3 meses antes de
 qualquer conta real — e só então estudar execução automática (MetaTrader 5,
 NTSL no Profit, ou API de corretora), começando com 1 contrato.
 
+## Veredictos das hipóteses
+
+- **Hipótese 05 — Sentinela WIN (rompimento do range 09:05–10:30 na direção da SMA20 do diário, M5):** **MORTA** no in-sample em 2026-09-14 (122 operações, fator 0,95, expectância −1,59 R$/op; metades 0,94 e 0,87). Sem o filtro: 246 operações, fator 0,89 = igual ao controle ORB v3 (0,89). O agente não é construído. Detalhes em `HIPOTESE_05_SENTINELA_WIN.md`; rodada: `python main_sentinela.py --csv dados/win_insample.csv --d1 dados/win_d1.csv`.
+
 ## Roadmap sugerido
 
 - [ ] Conseguir dados reais 1-min de WIN e WDO (6–24 meses)
