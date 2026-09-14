@@ -80,6 +80,10 @@ Aprovou? Próxima etapa é **simulador/replay** por pelo menos 3 meses antes de
 qualquer conta real — e só então estudar execução automática (MetaTrader 5,
 NTSL no Profit, ou API de corretora), começando com 1 contrato.
 
+## Conclusão de família — rompimento intradiário no WIN (2026)
+
+Cinco hipóteses intradiárias no WIN foram reprovadas em 2026 com dados reais M1 e custos: ORB clássica, ORB com stop travado em 250 pontos, reversão à média no VWAP (H02), filtro de regime (H03) e o Sentinela de rompimento do range da primeira hora com filtro de tendência do diário (H05). O denominador comum é a aritmética do ponto de equilíbrio: com stop de 250 pontos e alvo de 500 (payoff ~1,85 após custos), a regra precisa acertar 35% das vezes e acerta 34%; filtros de horário, volume, VWAP e tendência mudam quantas operações entram, não a taxa de acerto do rompimento em si. **Novas hipóteses nesta família exigem mecanismo diferente, não parâmetro diferente** — outro stop, outra janela ou outro filtro é a mesma aposta com outro número. Bloco virgem (a partir de 2026-08-12) e holdout (jul–ago/2026) continuam intocados.
+
 ## Veredictos das hipóteses
 
 - **Hipótese 05 — Sentinela WIN (rompimento do range 09:05–10:30 na direção da SMA20 do diário, M5):** **MORTA** no in-sample em 2026-09-14 (122 operações, fator 0,95, expectância −1,59 R$/op; metades 0,94 e 0,87). Sem o filtro: 246 operações, fator 0,89 = igual ao controle ORB v3 (0,89). O agente não é construído. Detalhes em `HIPOTESE_05_SENTINELA_WIN.md`; rodada: `python main_sentinela.py --csv dados/win_insample.csv --d1 dados/win_d1.csv`.
