@@ -1,116 +1,132 @@
-# Hipótese 05 — Sentinela WIN: rompimento tardio do range da manhã (M5, mecânico)
+# Hipótese 05 — Sentinela WIN: rompimento do range da primeira hora na direção da tendência do diário
 
-**Status: FASE 0 (2026-09-14) — proposta pré-registrada, AGUARDANDO DECISÃO do dono sobre os dados
-(seção 6). Nenhum código de estratégia escrito; nada rodado além do pipeline sintético e da checagem de dados.**
+**Status: ETAPA 0.1 — PRÉ-REGISTRO (2026-09-14), sem tocar em dados. Aguardando ok do dono para a Etapa 0.2
+(implementar como estratégia do motor e rodar). Nenhum código de estratégia escrito.**
 
-Origem: `TradingAgents/PROMPT_SENTINELA_WIN.md` (prompt do agente ao vivo) e a revisão dele em
-2026-09-14 (Fase 0 no laboratório antes de qualquer agente). Este documento segue o formato das
-Hipóteses 02 e 03: hipótese em uma frase, racional, honestidade, regras fechadas, critério pré-declarado,
-contaminações, protocolo.
+Fonte: `TradingAgents/PROMPT_SENTINELA_WIN.md` versão 2, "PROMPT 1 — Fase 0, laboratório". A decisão sobre
+os dados (seção 6) foi tomada depois do prompt e está registrada aqui, antes de codar. Formato das Hipóteses
+02 e 03. O nome pedido no prompt era `hipotese-05-sentinela-rompimento.md`; mantido o padrão `HIPOTESE_NN_*.md`
+do laboratório.
 
 ## 1. A hipótese em uma frase
 
-Depois de um range longo na manhã (09:05–10:30), o fechamento de uma barra de 5 minutos além do range, com
-folga e volume acima da média e do lado certo do VWAP, tem continuação suficiente para pagar um stop de 250
-pontos com alvo de 500 no mesmo dia, após custos — no WIN.
+Um rompimento do range da primeira hora (09:05–10:30, horário absoluto), confirmado por fechamento de barra
+M5 com folga, volume e VWAP a favor, **na direção da tendência do diário (SMA20)**, tem expectância positiva
+no WIN depois de custos; sem o filtro de tendência, a mesma regra repete o veredicto de agosto.
 
-## 2. Por que alguém me pagaria (racional econômico)
+## 2. Racional econômico (por que alguém me pagaria)
 
-- Quem paga é quem estava do lado errado do range e sai por stop, mais quem chega atrasado ao rompimento: a
-  ordem de quem "esperou confirmar" (fechamento de M5, volume) chega depois dos stops do outro lado e antes
-  da entrada dos atrasados. É a candidata 2 da lista do dono ([[disciplina-proximas-hipoteses]]: "rompimento
-  tardio pós-10h30"), não a ORB de 15 minutos.
-- O filtro de VWAP evita comprar rompimento abaixo do preço médio do dia (rompimento contra o fluxo).
-- O filtro de volume tenta separar rompimento com participação de rompimento por falta de liquidez.
-- Quando a hipótese falha: em dia de range grande, 250 pontos de stop é pequeno em relação à volatilidade
-  (a mediana do range 09:05–10:30 no in-sample é 1.530 pontos; p90 = 2.411) — o stop vira ruído e o alvo de
-  500 pontos exige que a tarde ande um terço do range da manhã na direção certa.
+**Quem está do outro lado.** No rompimento de um range de mais de uma hora há dois pagadores: (a) quem vendeu
+a máxima ou comprou a mínima do range apostando em reversão e sai por stop quando o preço fecha além do
+extremo; (b) quem opera contra a tendência do diário — o comprador de "está barato" num dia em que o
+fechamento anterior está abaixo da SMA20 e o rompimento sai para baixo. O filtro de tendência escolhe o lado
+em que o fluxo de stops e de posicionamento de mais prazo empurram na mesma direção; sem ele, metade dos
+rompimentos briga contra esse fluxo e vira o que a ORB de agosto mostrou: pagamento de stop travado num
+mercado que devolve.
 
-## 3. Honestidade obrigatória (por que pode falhar)
+**Por que a variante reprovada em agosto não teria expectância.** A ORB v3 (range 09:00–09:15, entrada por
+toque de 1 tick, stop travado 250, alvo 1,5R) entrava cedo, nos dois lados, sem direção de prazo maior: com o
+range mediano da manhã em ~1.500 pontos, um stop de 250 pontos fica dentro do ruído de um range ainda em
+formação, e o lado escolhido é o do primeiro toque — o mesmo lado que os stops do outro extremo vão devolver.
+A H05 espera o range da primeira hora terminar, exige fechamento de M5 com 30 pontos de folga (não toque),
+volume ≥ 1,2× a média (participação, não vácuo), preço do lado certo da VWAP (fluxo do dia a favor) e só opera
+no sentido da SMA20 do diário. Cada filtro tira operações; a aposta é que tira principalmente as perdedoras.
 
-- É da mesma família da ORB reprovada em 2026 ([[veredicto-orb-2026]]): a variante "stop travado 250 pts"
-  perdeu em todo o grid de range máximo. O que muda aqui: janela de 85 minutos (não 15), gatilho por
-  fechamento de M5 com folga de 30 pts (não toque de 1 tick), filtros de VWAP e volume, e saídas por regra
-  (parcial em 1R, breakeven, trailing por estrutura, reversão de VWAP, stop de tempo). Cada uma dessas
-  diferenças é uma chance de a hipótese ser outra — e também uma chance de sobreajuste.
-- Não tem o filtro de tendência do diário que estava na candidata 3 do dono. Fica registrado como emenda
-  possível, não como parâmetro para varrer.
-- 13 parâmetros. Todos ficam **fixos nos defaults do prompt**. Nenhuma grade. Se reprovar, não se recalibra.
+**Por que pode falhar (honestidade).** (i) Mesma família da ORB reprovada ([[veredicto-orb-2026]]): stop de 250
+pontos num range de 300–2.500 continua pequeno para a volatilidade de muitos dias. (ii) O filtro de tendência do
+diário é lento (20 sessões): em virada de regime ele fica do lado errado por semanas. (iii) 13 parâmetros
+congelados: qualquer um deles pode estar errado e não será ajustado — se reprovar, reprovou. (iv) O in-sample
+já foi visto por quatro hipóteses; ver seção 6. (v) O filtro SMA20 precisa de 20 sessões de aquecimento: os 20
+primeiros pregões do in-sample não geram sinal com filtro (e, para atribuição limpa, também não sem filtro).
 
-## 4. Regras (decisões fechadas — iguais ao prompt do agente)
+## 3. Regras exatas (congeladas — os defaults são decisão, não ponto de partida de calibração)
 
-Range de referência = máxima e mínima entre 09:05 e 10:30. Entrada: barra M5 fecha ≥ 30 pts acima da máxima
-(compra) ou abaixo da mínima (venda), depois de 10:30 e até 16:00; volume relativo da barra ≥ 1,2× a média de
-20; preço do lado certo do VWAP; range entre 300 e 2.500 pts (fora disso, não opera no dia). Stop 250 pts;
-alvo 2R (500 pts); uma posição por vez; máx. 3 operações/dia; cooldown 15 min. Saídas a cada barra fechada, na
-ordem: parcial em 1R + breakeven, trava 1R em 2R; trailing para o último fundo/topo de M5 (só aproxima);
-reversão de VWAP por 2 barras fechadas → fecha; 12 barras sem 1R → fecha; zeragem 17:30. Sem inversão.
-Quantidade pelo risco de 1% (motor `GestorRisco`), custos e slippage do contrato WIN.
+Dados e barras:
+- Barras M5 agregadas do M1 (open da 1ª, high máx, low mín, close da última, volume somado). Decisão só com
+  a barra M5 FECHADA. Preenchimento intrabarra de stop e alvo resolvido pelo M1 pelo motor v3 (gap no open;
+  stop e alvo na mesma barra M1 = stop; alvo é ordem limitada, exige atravessar; slippage de 1 tick contra;
+  custos ida e volta por contrato). Nenhum modelo de preenchimento novo.
+- Horário absoluto. Pregões incompletos ou com buracos de minuto são descartados (no in-sample: 3 pregões —
+  2 com falhas de minuto e 1 com 321 barras).
 
-Premissas do replay (herdadas do motor v3): decisão só com barra M5 FECHADA (agregada de M1); preenchimento
-na barra M1 seguinte; stop e alvo na mesma barra M1 = stop; alvo é ordem limitada (exige atravessar); custos
-ida+volta por contrato; slippage de 1 tick contra.
+Range e filtros:
+- Range de referência = máxima e mínima das barras M5 entre 09:05 e 10:30 (pula a primeira barra do pregão).
+  Range fora de 300 a 2.500 pontos: dia sem operação.
+- Filtro de tendência do diário (núcleo da regra): só compra se o fechamento do dia anterior está acima da
+  SMA20 dos fechamentos diários; só vende se abaixo. Fechamento diário = último M1 do pregão nos dados.
+  Linha de base para atribuição: a mesma regra SEM este filtro. Nenhuma outra variante.
 
-## 5. Critério pré-declarado (escrito antes de rodar)
+Gatilho e entrada:
+- Compra: barra M5 fecha ≥ 30 pontos acima da máxima do range, depois de 10:30 e antes de 16:00, com volume da
+  barra ≥ 1,2× a média das 20 barras M5 anteriores e fechamento acima da VWAP do dia (preço típico × volume,
+  acumulado desde 09:00). Venda é o espelho. Entrada na abertura da barra M5 seguinte (com slippage).
+- Stop inicial 250 pontos; alvo 2× o stop (500). Quantidade = 1% do capital ÷ ((250 + custos ida e volta em
+  pontos + spread em pontos) × R$ 0,20), arredondado para baixo; zero = não opera. Capital de referência
+  R$ 10.000. Custos R$ 1,00 por contrato por lado (R$ 2,00 ida e volta = 10 pontos) + slippage do motor;
+  spread assumido = 1 tick (5 pontos). Risco efetivo por contrato = (250 + 10 + 5) × 0,20 = R$ 53,00 →
+  com R$ 100 de risco, 1 contrato.
 
-- Legibilidade: ≥ 60 operações na fatia; abaixo disso, "ILEGÍVEL", sem leitura.
-- MORTA se, após custos, o fator de lucro for < 1,0 em **qualquer** uma das duas metades do in-sample, ou a
-  expectância por operação for negativa no período todo.
-- Só "sobrevive" (não "aprovada") se fator ≥ 1,2 nas duas metades, na mesma direção, e resultado melhor que
-  NÃO OPERAR (zero) após custos. Sobreviver no in-sample não autoriza agente ao vivo: autoriza o Estágio B.
-- Comparação obrigatória contra a ORB v3 no mesmo período (mesma régua) — para saber se as diferenças da
-  seção 3 fizeram alguma diferença.
+Saídas (avaliadas a cada barra M5 fechada, nesta ordem; a primeira que dispara vence):
+1. Parcial de 50% em 1R (250 pontos a favor) com stop do restante no preço de entrada. Com 1 contrato a
+   parcial não cabe: vira só breakeven (registrado como "parcial impossível").
+2. Em 2R, stop do restante travando 1R.
+3. Após 1R, trailing pelo último fundo (compra) ou topo (venda) de M5 (pivô de 3 barras) menos/mais 30
+   pontos, só quando aproxima o stop.
+4. Duas barras M5 consecutivas fechando do lado contrário da VWAP contra a posição: fecha a mercado.
+5. 12 barras M5 sem atingir 1R: fecha a mercado.
+6. 17:30: fecha tudo.
 
-## 6. Os dados — a decisão que é do dono
+Limites: máximo 1 posição; máximo 3 operações por dia; 15 minutos de espera após fechar uma operação; após 3
+stops no dia, sem novas entradas; circuit breaker diário do `GestorRisco` (3%).
 
-Estado em 2026-09-14 (checado com `pandas`):
+## 4. Predição registrada (P2)
 
-| Bloco | Período | Pregões | Situação |
+- **Com o filtro de tendência**: fator de lucro acima de 1,3 e expectância positiva no in-sample, em ambas as
+  metades.
+- **Sem o filtro**: resultado igual ao veredicto de agosto (fator abaixo de 1,0, expectância negativa).
+- Controle: ORB v3 no mesmo período e nas mesmas metades, na mesma tabela.
+- Se a variante SEM filtro melhorar de forma inesperada em relação a agosto: parar e investigar (look-ahead,
+  agregação M5, contagem de custos) antes de qualquer leitura.
+
+## 5. Critérios (escritos antes de rodar)
+
+Aprovação (do prompt): amostra mínima de 100 operações; fator de lucro > 1,3 após custos; expectância
+positiva; drawdown suportável (declarado: máximo 10% do capital de referência); estabilidade nas duas metades
+(fator > 1,0 e expectância positiva em cada uma). Holdout só depois de aprovado, uma única vez.
+
+Morte (revisão de 2026-09-14): fator de lucro após custos < 1,0 em **qualquer** uma das duas metades do
+in-sample, ou expectância negativa no período todo → hipótese morta; o Sentinela não é construído e este
+registro é o resultado. Menos de 60 operações numa fatia = "ILEGÍVEL" para aquela fatia.
+
+Reporte por célula (todo / 1ª metade / 2ª metade × com filtro / sem filtro / ORB v3): número de operações, fator
+de lucro, expectância em R$ por operação, drawdown máximo, maior sequência de perdas, e contribuição de cada
+regra de saída (quantas saídas por regra e resultado médio de cada).
+
+## 6. Dados — decisão do dono (2026-09-14), registrada antes de codar
+
+| Bloco | Período | Pregões | Papel na H05 |
 |---|---|---|---|
-| in-sample `win_insample.csv` | 2025-11-21 a 2026-06-30 | 148 | contaminado por 4 hipóteses; a H03 foi declarada "a ÚLTIMA hipótese testada nestes dados" |
-| holdout `win_holdout.csv` | 2026-07-01 a 2026-08-11 | 30 | VIRGEM (trava `--liberar-holdout`); reservado para veredicto único |
-| `win$_1min.csv` (export mensal) | 2026-07-06 a 2026-09-01 | 42 | 27 sobrepõem o holdout; **15 pregões virgens após 11/08** |
+| `win_insample.csv` | 2025-11-21 a 2026-06-30 | 148 (145 após descartes; 20 de aquecimento da SMA20) | **Contaminado** (4 hipóteses anteriores). Só tem **poder de REPROVAR**: o critério de morte da seção 5 vale nele. Nunca aprova. |
+| Bloco virgem pós-holdout | de 2026-08-12 em diante (export mensal `win$_1min.csv`; 15 pregões em 2026-09-01) | cresce | **Único juiz de APROVAÇÃO**, lido uma única vez quando tiver **≥ 40 pregões** (previsão: meados de outubro/2026). |
+| `win_holdout.csv` | 2026-07-01 a 2026-08-11 | 30 | **Intocado**. Reservado para a confirmação final, só após aprovação no bloco virgem, uma única vez, com `--liberar-holdout` e autorização escrita. |
 
-Opções, em ordem da minha preferência:
+Consequência: a Etapa 0.2 roda **só no in-sample** e só pode produzir dois desfechos — "morta" ou "sobrevive
+ao in-sample, aguarda o bloco virgem". "Aprovada" não é um desfecho possível antes de outubro.
 
-- **(C) Recomendada — in-sample como desenvolvimento declarado + juiz em dados novos.** Rodar o replay no
-  in-sample sabendo e escrevendo que ele está contaminado (o acordo da H03 é estendido por decisão explícita do
-  dono); critério de MORTE da seção 5 vale nele. Se sobreviver, o juiz é o **bloco novo pós-11/08**, lido uma
-  única vez quando tiver ≥ 40 pregões (export mensal; ~meados de outubro). O holdout jul–ago continua virgem
-  para o que foi reservado. Custo: 0 agora; exige paciência de um mês.
-- **(B) Esperar dados novos** e não tocar no in-sample. Mais limpo; sem informação até outubro.
-- **(A) Gastar o holdout agora** como juiz da H05. Rodada única, irreversível; se a H05 morrer no in-sample, o
-  holdout foi gasto à toa. Não recomendo.
+## 7. Achados do motor mantidos (revisão adversarial de 2026-09-14)
 
-Em qualquer opção: o **ensaio do sentinela ao vivo (dry-run no app) é dado forward limpo** e vale mais que
-qualquer replay — mas só existe se a Fase 1 for autorizada.
+- A ORB v3 define o range a partir de `df_dia.index[0] + 15 min`; 71 dos 148 pregões começam depois de 09:00
+  (09:01/09:02), então a janela desliza 1–2 minutos nesses dias. A H05 usa horário absoluto (09:05–10:30) e
+  não toca em `robo/backtest.py`.
+- Decisão em M5 sobre preenchimento em M1: módulo novo (`robo/estrategia_sentinela.py`), reaproveitando
+  `GestorRisco`, `Contrato`, `Trade`, `Resultado` e `calcula_metricas`.
+- 3 pregões do in-sample descartados (2 com buracos de minuto, 1 incompleto).
+- Zeragem usa o close da barra 17:30 (1 minuto de antecipação; irrelevante em R$; anotado).
 
-## 7. Revisão adversarial do motor (Prompt 1, item 2)
+## 8. Protocolo
 
-Sólido: preenchimento conservador (gap no open, stop antes do alvo na mesma barra, alvo exige atravessar,
-custos e slippage sempre descontados), dimensionamento por risco com piso zero, circuit breaker por dia,
-métricas com drawdown por trade, trava de holdout no `main_vwap.py`. Pipeline sintético rodou sem erro
-(`main.py --dias-sinteticos 40`: WIN e WDO reprovados no sintético, como esperado de dados sem estrutura).
+Uma etapa por vez, com ok do dono. Nenhum parâmetro varrido; a única variante é a linha de base sem filtro de
+tendência, para atribuição. `main_sentinela.py` herda a trava de holdout do `main_vwap.py`. O veredicto do
+in-sample é escrito aqui e no README. Se reprovar, o Sentinela não é construído e o registro é o resultado.
 
-Frágil: (1) `backtest.py` define o range a partir de `df_dia.index[0] + 15 min` — **71 dos 148 pregões do
-in-sample começam depois de 09:00** (09:01/09:02), então a janela da ORB desliza 1–2 minutos nesses dias; para
-a H05 a janela deve ser por horário absoluto (09:05–10:30), não relativa à primeira barra. (2) Zeragem usa o
-`close` da barra 17:30, conhecido só ao fim dela — 1 minuto de antecipação, irrelevante em R$, mas fica
-anotado. (3) Sem checagem de buracos: o in-sample tem 2 pregões com falhas de minuto e 1 pregão com 321 barras
-(< 400) — descartar dias incompletos na H05. (4) O motor é M1; a H05 decide em M5: precisa de agregação
-M1→M5 com decisão só na barra M5 fechada e preenchimento em M1 (módulo novo, sem tocar `backtest.py`).
-
-A única melhoria mais importante agora: **não é código — é a decisão da seção 6.** Sem ela, qualquer replay
-no in-sample é a quinta hipótese nos mesmos dados sem acordo escrito.
-
-## 8. Plano (para depois do ok)
-
-1. Fase 1 — `robo/estrategia_sentinela.py` (regras puras + replay M5-sobre-M1, premissas da seção 4) e
-   `main_sentinela.py` com a mesma trava de holdout do `main_vwap.py`, período todo e duas metades, ORB v3 na
-   mesma tabela como controle. Testes com barras sintéticas (gatilho, folga, volume, range fora, cada saída).
-2. Fase 2 — rodada única no in-sample; leitura pelo critério da seção 5; veredicto escrito aqui.
-3. Fase 3 — só se sobreviver: juiz conforme a opção escolhida na seção 6; depois, e só depois, o agente
-   `sentinela.py` no app (Fases A–E do prompt), com `DT SENT` no comentário, uma posição fixa em código e
-   critério de sucesso por ≥ 30 operações contra piloto e NÃO OPERAR.
-
-Nada aqui é recomendação de investimento; material de estudo em conta demo.
+Material educacional; não é recomendação de investimento.
